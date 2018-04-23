@@ -4,3 +4,5 @@ import $ from 'jquery';
 $(() => {
 	svg4everybody();
 });
+
+import '../blocks/test/test';
