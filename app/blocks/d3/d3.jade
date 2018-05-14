@@ -3,4 +3,5 @@ mixin d3()
 		block
 
 		+e('div')#container
-			+b('div').kit-editor&attributes({'data-kit-editor': ''})
+			+b.kit-editor&attributes({'data-kit-editor': ''})
+				+e('button').button(data-ng-click="center();") C

@@ -89,7 +89,7 @@
     "gulp-plumber-error-handler": "^1.0.0",
     "gulp-pug-linter": "^0.4.1",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.6.0",
+    "gulp-sourcemaps": "^1.12.1",
     "gulp-static-hash": "^0.1.4",
     "gulp-stylint": "^3.0.0",
     "gulp-stylus": "^2.1.0",

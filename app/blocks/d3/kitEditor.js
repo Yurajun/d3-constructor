@@ -1,5 +1,7 @@
-module.exports = ['d3Factory', '$q', '$window',
-	function (d3Factory, $q, $window){ // eslint-disable-line no-unused-vars
+/* global angular */
+
+module.exports = ['d3Factory', '$q', '$window', '$compile',
+	function (d3Factory, $q, $window, $compile){ // eslint-disable-line no-unused-vars
 
 		// DDO - Directive Definetion Object
 		return {
@@ -10,7 +12,67 @@ module.exports = ['d3Factory', '$q', '$window',
 			// $element - DOM-элемент с директивой, обернут в jqLite
 			// $attrs - массив атрибуттов в DOM-элементе
 			link: ($scope, $element, $attrs) => { // eslint-disable-line no-unused-vars
+				// сработает когда загрузится d3. Фунция синхронной загрузки
 				d3Factory.d3().then(function (d3){
+					const DURATION = 800;
+					/**
+					 * Перемещение рабочей области в указанную точку
+					 * @param  {Object} pt  -  точка назначения
+					 * @param {Number} pt.x -  X - координаты
+					 * @param {Number} pt.y -  Y - координаты
+					 * @return {Promise}
+					 */
+					$scope.translateTo = pt => {
+						const d = $q.defer();
+						d.notify('About to start translate');
+
+						// безымянная анимация
+						d3.transition()
+							.duration(DURATION)
+							.tween('translateTo', () => {
+
+								function translateToInternal(x, y){
+									$scope.editor.behavior.d3.zoom.translate([x, y]);
+									$scope.editor.behavior.d3.zoom.event($scope.editor.svg.container);
+									$scope.editor.position.x = x;
+									$scope.editor.position.y = y;
+								}
+								// 16,6 ms
+								// здесь нужно вернуть фукцию инторполятор
+								const step = d3.interpolate([$scope.editor.position.x, $scope.editor.position.y],
+									[pt.x, pt.y]);
+								// step(0)[0] -> $scope.editor.position.x
+								// step(0)[1] -> $scope.editor.position.y
+								// step(1)[0] -> pt.x
+								// step(1)[1] -> pt.y
+								// t -> [0, 1]
+
+								// У возвращаемой фукции должен быть один параметер Т
+								return t => {
+									translateToInternal(step(t)[0], step(t)[1]);
+								};
+							}).each('end', () => {
+								d.resolve(`Translate to (${pt.x}; ${pt.y}) succesfully`);
+							});
+						return d.promise;
+					};
+
+					$scope.center = () => {
+						console.log('1');
+
+						const scale        = $scope.editor.behavior.d3.zoom.scale();
+						const editorWidth  = $scope.editor.pageProperties.pageWidth * scale;
+						const editorHeight = $scope.editor.pageProperties.pageHeight * scale;
+						const center = {
+							x: ($window.innerWidth - editorWidth) / 2,
+							y: ($window.innerHeight - editorHeight) / 2
+						};
+
+						// $scope.translateTo({x: 200, y: 300}).then(result => {
+						// 	console.log(result);
+						// });
+						$scope.translateTo(center);
+					};
 
 					$scope.editor = {
 						behavior: {
@@ -25,18 +87,51 @@ module.exports = ['d3Factory', '$q', '$window',
 							y: 0
 						},
 						grid: {
-							sizeXmm: 5,
-							sizeYmm: 5
+							sizeXmm: 20,
+							sizeYmm: 20
 						},
+						pageProperties: {},
 						svg: {},
 						features: {}
 					};
 
+					// console.log(d3.select($element[0]));
+					/* home work lesson 3
+					d3.select($element[0]).append('button').text('R')
+						.attr('class', 'to-center-btn')
+						.on('click', () => {
+							const gridRect = $scope.editor.svg.container.node().getBoundingClientRect();
+
+							const posX = ($window.innerWidth - gridRect.width) / 2;
+							const posY = ($window.innerHeight - gridRect.height) / 2;
+
+							// console.log($scope.editor);
+							$scope.editor.svg.container
+								.transition()
+								.duration(DURATION)
+								.attr('transform', `translate(${posX}, ${posY})scale(${$scope.editor.scale})`)
+								.each('end', () => {
+									$scope.editor.behavior.d3.zoom.translate([posX, posY]);
+									$scope.editor.behavior.d3.zoom.event($scope.editor.svg.container);
+								});
+						});
+					*/
 					$scope.editor.svg.rootNode = d3.select($element[0]).append('svg')
 						.attr('id', 'svg-editor');
-
+					// console.log($scope.editor.svg.rootNode.node().pixelUnitToMillimeterX);
 					// $scope.editor.features.pixelsPerMmX = 1 / $scope.editor.svg.rootNode.node().screenPixelToMillimeterX;
 					// $scope.editor.features.pixelsPerMmY = 1 / $scope.editor.svg.rootNode.node().screenPixelToMillimeterY;
+					// так как свойство в мм не работает то сделаем квадрат в мм и получим его размер в px
+
+					/*
+					const conversionRect = $scope.editor.svg.rootNode.append('rect')
+																	.attr('width', '1mm')
+																	.attr('height', '1mm');
+					$scope.editor.features.pixelsPerMmX = conversionRect.node().getBBox().width;
+					$scope.editor.features.pixelsPerMmY = conversionRect.node().getBBox().height;
+
+					conversionRect.remove();
+					*/
 
 					const g = $scope.editor.svg.rootNode.append('g')
 						.attr('transform', 'translate(0,0)');
@@ -67,36 +162,41 @@ module.exports = ['d3Factory', '$q', '$window',
 					// const pageWidth = A4WidthMm * $scope.editor.features.pixelsPerMmX;
 					// const pageHeight = A4HeightMm * $scope.editor.features.pixelsPerMmY;
 
-					const DURATION = 800;
+					$scope.editor.pageProperties.pageWidth = 1040;
+					$scope.editor.pageProperties.pageHeight = 760;
+
+					const pageWidth = $scope.editor.pageProperties.pageWidth;
+					const pageHeight = $scope.editor.pageProperties.pageHeight;
+
 					borderFrame
 						.transition()
 						.duration(DURATION)
-						.attr('width', 1035)
-						.attr('height', 765);
+						.attr('width', pageWidth)
+						.attr('height', pageHeight);
 
 					const linesX = gGridX.selectAll('line')
-						.data(d3.range(0, 765, 15));
+						.data(d3.range(0, pageHeight, 20));
 
 					linesX.enter().append('line')
 						.attr('x1', 0)
 						.attr('x2', 0)
-						.attr('y1', function (d) {return d;})
+						.attr('y1', d => {return d;})
 						.transition()
 						.duration(DURATION)
-						.attr('y2', function (d) { return d;})
-						.attr('x2', 1035);
+						.attr('y2', d => {return d;})
+						.attr('x2', pageWidth);
 
 					const linesY = gGridY.selectAll('line')
-						.data(d3.range(0, 1035, 15));
+						.data(d3.range(0, pageWidth, 20));
 
 					linesY.enter().append('line')
 						.attr('y1', 0)
 						.attr('y2', 0)
-						.attr('x1', function (d) {return d;})
+						.attr('x1', d => {return d;})
 						.transition()
 						.duration(DURATION)
-						.attr('x2', function (d) { return d;})
-						.attr('y2', 765);
+						.attr('x2', d => { return d;})
+						.attr('y2', pageHeight);
 
 					$scope.editor.behavior.d3.zoom = d3.behavior.zoom()
 						.scaleExtent([0.2, 10])
@@ -109,9 +209,38 @@ module.exports = ['d3Factory', '$q', '$window',
 
 							$scope.editor.position.x = t[0];
 							$scope.editor.position.y = t[1];
+							$scope.editor.scale = d3.event.scale;
+
 						});
 					g.call($scope.editor.behavior.d3.zoom);
 					$scope.editor.behavior.d3.zoom.event($scope.editor.svg.container);
+					$scope.center();
+
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(0, 0)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-rect', '').node()))($scope);
+
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(0, 60)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-rect', '').node()))($scope);
+
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(0, 120)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-t', '').node()))($scope);
+
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(40, 280)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-gear', '').node()))($scope);
+
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(40, 320)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-gear', '').node()))($scope);
+
 				});
 			}
 		};
