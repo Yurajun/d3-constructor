@@ -241,6 +241,11 @@ module.exports = ['d3Factory', '$q', '$window', '$compile',
 						.attr('data-kit-custom-shape', '')
 						.attr('data-kit-gear', '').node()))($scope);
 
+					$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', 'translate(40, 420)')
+						.attr('data-kit-custom-shape', '')
+						.attr('data-kit-triangle', '').node()))($scope);
+
 				});
 			}
 		};
