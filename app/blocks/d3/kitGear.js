@@ -1,5 +1,5 @@
-module.exports = ['d3Factory',
-	function (d3Factory){ // eslint-disable-line no-unused-vars
+module.exports = ['d3Factory', 'kitSystemShapeDrawerFactory',
+	function (d3Factory, drawer){ // eslint-disable-line no-unused-vars
 
 		// DDO - Directive Definetion Object
 		return {
@@ -15,63 +15,24 @@ module.exports = ['d3Factory',
 				d3Factory.d3().then(function (d3){
 					$scope.shape.moniker = 'core.gear';
 
-
-					function drawGearWheel(teeth, radiusInner, radiusOuter, toothHeight) {
-
-						const rOuter = Math.abs(radiusOuter) * 4;
-						const rInner = Math.abs(radiusInner) * 4;
-						const rTooth = rOuter + (toothHeight * 4);
-						const step   = Math.PI / teeth;
-						const s      = step / 3;
-						let a0       = -Math.PI / 2;
-						let i        = -1;
-						// const pathString = ['M0', -rOuter];
-						// const pathString = ['M0', rOuter * Math.sin(-90)];
-						const pathString = ['M0', rOuter * Math.sin(a0)];
-						while (++i < teeth){
-
-							pathString.push('A', rOuter, ',', rOuter, ' 0 0 1 ', rOuter * Math.cos(a0 += step), ',', rOuter * Math.sin(a0));
-							// 360 / (N + N) = 180 / N
-							pathString.push('L', rTooth * Math.cos(a0 += s), ',', rTooth * Math.sin(a0));
-							pathString.push('A', rTooth, ',', rTooth, ' 0 0 1 ', rTooth * Math.cos(a0 += s), ',', rTooth * Math.sin(a0));
-							pathString.push('L', rOuter * Math.cos(a0 += s), ',', rOuter * Math.sin(a0));
-
+					$scope.shape.svg.shapeObject = drawer.drawGearWheel(
+						d3,
+						$scope.shape.svg.d3Object,
+						8,
+						5,
+						9,
+						2,
+						{
+							innerRadius: 10,
+							outerRadius: 20
+						},
+						{
+							innerRadius: 10,
+							outerRadius: 32
 						}
+					);
 
-						pathString.push(
-								'M0', -rInner,
-								'A', rInner, ',', rInner, ' 0 0 0 0,', rInner,
-								'A', rInner, ',', rInner, ' 0 0 0 0,', -rInner,
-								'z'
-							);
-
-						return pathString.join('');
-					}
-
-					const outerAnnulus = d3.svg.arc()
-						.innerRadius(10)
-						.outerRadius(32)
-						.startAngle(0)
-						.endAngle(Math.PI * 2);
-
-					const innerAnnulus = d3.svg.arc()
-						.innerRadius(10)
-						.outerRadius(20)
-						.startAngle(0)
-						.endAngle(Math.PI * 2);
-
-					$scope.shape.svg.d3Object.append('path')
-						.attr('class', 'gear-outer-circle')
-						.attr('d', outerAnnulus);
-
-					$scope.shape.svg.d3Object.append('path')
-						.attr('class', 'gear-inner-circle')
-						.attr('d', innerAnnulus);
-
-					$scope.shape.svg.shapeObject = $scope.shape.svg.d3Object.append('path')
-						.attr('class', 'gear')
-						.attr('d', drawGearWheel(8, 5, 9, 2));
-
+					// 8, 5, 9, 2
 					// FPS / frame per second
 					// jank-free
 					// 60 FPS - 1000 / 60 ~ 16.6ms

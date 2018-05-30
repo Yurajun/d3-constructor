@@ -9,6 +9,7 @@ $(() => {
 import angular from 'angular';
 import '../blocks/d3/d3';
 import '../blocks/d3/directives.js';
+import '../blocks/d3/services.js';
 
-angular.module('kitApp', ['d3', 'kitApp.directives']);
+angular.module('kitApp', ['d3', 'kitApp.directives', 'kitApp.services']);
 
