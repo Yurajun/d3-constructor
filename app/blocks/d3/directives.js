@@ -5,4 +5,5 @@ angular.module('kitApp.directives', [])
 	.directive('kitRect', require('../d3/kitRect'))
 	.directive('kitT', require('../d3/kitT'))
 	.directive('kitGear', require('../d3/kitGear'))
-	.directive('kitTriangle', require('../d3/kitTriangle'));
+	.directive('kitTriangle', require('../d3/kitTriangle'))
+	.directive('kitScrew', require('../d3/kitScrew'));

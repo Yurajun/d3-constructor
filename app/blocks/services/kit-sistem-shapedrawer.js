@@ -108,14 +108,106 @@ module.exports = function (){
 			return holder.append('path')
 				.attr('d', drawRectWithHoles(holeRadius, hHoleCount, vHoleCount));
 		},
-		drawTriange() {
+		drawTriangle(d3, holder, holeRadius, hHoleCount, vHoleCount) {
+			function drawTriangle(){
+				const width      = 10 * hHoleCount * 4;
+				const height     = 10 * vHoleCount * 4;
+				let borderRadius = 2 * holeRadius * 4;
+				const stepH      = width / hHoleCount;
+				const stepW      = height / vHoleCount;
+				let pathString   = '';
+				const angle45 = Math.PI / 4;
 
+				pathString = `M0, ${borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${borderRadius}, ${-borderRadius}
+											h${width - (2 * borderRadius)}
+											a${borderRadius},${borderRadius} 0 0 1 ${borderRadius}, ${borderRadius}
+											v${height - (2 * borderRadius)}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius}, ${borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius * Math.SQRT1_2}, ${-borderRadius * Math.sin(1 - angle45)}
+											L${borderRadius - borderRadius * Math.SQRT1_2}, ${(2 * borderRadius) - borderRadius * Math.sin(1 - angle45)}
+											a${borderRadius},${borderRadius} 0 0 1 ${-(borderRadius - borderRadius * Math.SQRT1_2)}, ${-borderRadius * Math.SQRT1_2}
+											z`;
+
+				borderRadius /= 2;
+
+				for (let j = 0; j < vHoleCount; j++){
+					for (let i = 0; i < hHoleCount; i++){
+						if (j === 0 || i === (hHoleCount - 1) || (j & 1) === 1 && (i & 1) === 1 && j === i || (j & 1) === 0 && (i & 1) === 0 && j === i){
+							pathString += `M${i * stepH + stepH / 2},${j * stepW + stepW / 2 - borderRadius}
+														a${borderRadius},${borderRadius} 0 0 1 0, ${2 * borderRadius}
+														a${borderRadius},${borderRadius} 0 0 1 0, ${-2 * borderRadius}
+														z`;
+						}
+					}
+				}
+				return pathString;
+			}
+
+			return holder.append('path')
+				.attr('d', drawTriangle(holeRadius, hHoleCount, vHoleCount));
 		},
-		drawTShape() {
+		drawTShape(d3, holder, holeRadius, hHoleCount, vHoleCount) {
+			function drawTShape(){
+				const width      = 10 * hHoleCount * 4;
+				const height     = 10 * vHoleCount * 4;
+				let borderRadius = 2 * holeRadius * 4;
+				const stepH      = width / hHoleCount;
+				const stepW      = height / vHoleCount;
+				let pathString   = '';
 
+				pathString = `M${width / 2},${height}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius}, ${-borderRadius}
+											v${-(height / vHoleCount * (vHoleCount - 1)) + borderRadius}
+											h${-(width / hHoleCount) * (Math.floor(hHoleCount / 2)) + borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius}, ${-borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${borderRadius}, ${-borderRadius}
+											h${width - (2 * borderRadius)}
+											a${borderRadius},${borderRadius} 0 0 1 ${borderRadius}, ${borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius}, ${borderRadius}
+											h${-(width / hHoleCount) * (Math.floor(hHoleCount / 2)) + borderRadius}
+											v${(height / vHoleCount * (vHoleCount - 1)) - borderRadius}
+											a${borderRadius},${borderRadius} 0 0 1 ${-borderRadius}, ${borderRadius}
+											z`;
+
+				borderRadius /= 2;
+				for (let j = 0; j < vHoleCount; j++){
+					for (let i = 0; i < hHoleCount; i++){
+						if (j === 0 || i === Math.floor(hHoleCount / 2)){
+							pathString += `M${i * stepH + stepH / 2},${j * stepW + stepW / 2 - borderRadius}
+														a${borderRadius},${borderRadius} 0 0 1 0, ${2 * borderRadius}
+														a${borderRadius},${borderRadius} 0 0 1 0, ${-2 * borderRadius}
+														z`;
+						}
+					}
+				}
+				return pathString;
+			}
+
+			return holder.append('path')
+				.attr('d', drawTShape(holeRadius, hHoleCount, vHoleCount));
 		},
-		drawScrew() {
+		drawScrew(d3, holder, outerHexSize, innerHexSize) {
+			function hexagon(size) {
+				const path = ['M0', -size];
+				let i = -1;
 
+				while (++i < 7){
+					const angle = Math.PI / 3 * i + Math.PI / 2;
+					path.push('L', size * Math.cos(angle), ',', size * Math.sin(angle));
+				}
+
+				path.push('z');
+				return path.join('');
+			}
+
+			holder.append('path')
+				.attr('class', 'screw outer-hex')
+				.attr('d', hexagon(outerHexSize * 4));
+
+			holder.append('path')
+				.attr('class', 'screw inner-hex')
+				.attr('d', hexagon(innerHexSize * 4));
 		},
 
 		getDrawingMethod(moniker) {

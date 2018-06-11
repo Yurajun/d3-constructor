@@ -38,12 +38,25 @@ module.exports = ['d3Factory', 'kitSystemShapeDrawerFactory',
 					// 60 FPS - 1000 / 60 ~ 16.6ms
 					// requestAnimationFrame
 
-					const speed = 0.05;      // gain
-					const start = Date.now();
+					// const speed = 0.05;      // gain
+					// const start = Date.now();
 
-					d3.timer(() => {
-						$scope.shape.svg.shapeObject.attr('transform', `rotate(${(Date.now() - start) * speed * ($scope.$id & 1 ? 1 : -1)})`);
+					// d3.timer(function Tmr(){
+					// 	$scope.shape.svg.shapeObject.attr('transform', `rotate(${(Date.now() - start) * speed * ($scope.$id & 1 ? 1 : -1)})`);
+					// });
+
+					const speed = 0.7;      // gain
+					let start = 0;
+
+					d3.timer(function Tmr(){
+						$scope.shape.svg.shapeObject.attr('transform', `rotate(${(start++) * speed * ($scope.$id & 1 ? 1 : -1)})`);
 					});
+
+					//
+					//
+					//
+					//
+					//
 
 					// function drawRectWithHoles(holeRadius, hHoleCount, vHoleCount){
 

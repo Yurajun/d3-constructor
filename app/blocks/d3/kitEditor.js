@@ -216,35 +216,47 @@ module.exports = ['d3Factory', '$q', '$window', '$compile',
 					$scope.editor.behavior.d3.zoom.event($scope.editor.svg.container);
 					$scope.center();
 
-					$compile(angular.element($scope.editor.svg.container.append('g')
-						.attr('transform', 'translate(0, 0)')
-						.attr('data-kit-custom-shape', '')
-						.attr('data-kit-rect', '').node()))($scope);
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(0, 0)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-rect', '').node()))($scope);
 
-					$compile(angular.element($scope.editor.svg.container.append('g')
-						.attr('transform', 'translate(0, 60)')
-						.attr('data-kit-custom-shape', '')
-						.attr('data-kit-rect', '').node()))($scope);
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(0, 60)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-rect', '').node()))($scope);
 
-					$compile(angular.element($scope.editor.svg.container.append('g')
-						.attr('transform', 'translate(0, 120)')
-						.attr('data-kit-custom-shape', '')
-						.attr('data-kit-t', '').node()))($scope);
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(0, 120)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-t', '').node()))($scope);
 
 					$compile(angular.element($scope.editor.svg.container.append('g')
 						.attr('transform', 'translate(40, 280)')
 						.attr('data-kit-custom-shape', '')
 						.attr('data-kit-gear', '').node()))($scope);
 
-					$compile(angular.element($scope.editor.svg.container.append('g')
-						.attr('transform', 'translate(40, 320)')
+					for (let i = 0; i < 10; i++){
+						$compile(angular.element($scope.editor.svg.container.append('g')
+						.attr('transform', `translate(${40 + i}, ${280 + i})`)
 						.attr('data-kit-custom-shape', '')
 						.attr('data-kit-gear', '').node()))($scope);
+					}
 
-					$compile(angular.element($scope.editor.svg.container.append('g')
-						.attr('transform', 'translate(40, 420)')
-						.attr('data-kit-custom-shape', '')
-						.attr('data-kit-triangle', '').node()))($scope);
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(40, 320)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-gear', '').node()))($scope);
+
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(40, 420)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-triangle', '').node()))($scope);
+
+					// $compile(angular.element($scope.editor.svg.container.append('g')
+					// 	.attr('transform', 'translate(160, 500)')
+					// 	.attr('data-kit-custom-shape', '')
+					// 	.attr('data-kit-screw', '').node()))($scope);
 
 				});
 			}
